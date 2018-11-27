@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/resources.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/rt.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/jsse.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/jce.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/charsets.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/ext/dnsns.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/ext/localedata.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/Java/jre6/lib/ext/sunjce_provider.jar"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/j2ee.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/pe.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/pe3pt.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/peResources.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/resources.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/stax-api.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/xlxpScanner.jar"/>
+	<classpathentry kind="lib" path="D:/Ultra Tech - Cement/jars/xlxpScannerUtils.jar"/>
+	<classpathentry kind="lib" path="E:/Myfolder/lib/CopyLibs/navigatorAPI.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

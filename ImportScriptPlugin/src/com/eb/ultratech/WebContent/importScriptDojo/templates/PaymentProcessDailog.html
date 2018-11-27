@@ -1,0 +1,29 @@
+<div class="dijitDialog">
+    <div data-dojo-attach-point="titleBar" class="dijitDialogTitleBar">
+        <span data-dojo-attach-point="titleNode" class="dijitDialogTitle" id="${id}_title"
+              role="header" level="1"></span>
+        <span style="display: none;" data-dojo-attach-point="closeButtonNode" class="dijitDialogCloseIcon"
+              data-dojo-attach-event="ondijitclick: onCancel" title="${buttonCancel}" role="button" tabIndex="-1">
+            <span data-dojo-attach-point="closeText" class="closeText" title="${buttonCancel}">x</span>
+        </span>
+    </div>
+	<div data-dojo-attach-point="containerNode" class="dijitDialogPaneContent" >
+		<div>
+			<div>
+				<label >UserName</label>
+				<span data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="userNameText"></span>
+				<label >Password</label>
+				<span data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="passwordText" type="password"></span>
+				
+			    <button data-dojo-type="dijit/form/Button" data-dojo-attach-point="postButton">Post</button>
+			
+				<button data-dojo-type="dijit/form/Button" data-dojo-attach-event="onClick:cancel">Close</button>
+				</br>
+				<p data-dojo-attach-point="_messageArea" style="border-style : grove; border-color: orange"></p>
+			</div>
+		
+		</div>
+	
+	</div>
+	
+</div>

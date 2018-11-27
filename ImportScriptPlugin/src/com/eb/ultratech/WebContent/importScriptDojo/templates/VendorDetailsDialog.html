@@ -1,0 +1,54 @@
+<div class="dijitDialog">
+    <div data-dojo-attach-point="titleBar" class="dijitDialogTitleBar">
+        <span data-dojo-attach-point="titleNode" class="dijitDialogTitle" id="${id}_title"
+              role="header" level="1"></span>
+        <span style="display: none;" data-dojo-attach-point="closeButtonNode" class="dijitDialogCloseIcon"
+              data-dojo-attach-event="ondijitclick: onCancel" title="${buttonCancel}" role="button" tabIndex="-1">
+            <span data-dojo-attach-point="closeText" class="closeText" title="${buttonCancel}">x</span>
+        </span>
+    </div>
+	<div data-dojo-attach-point="containerNode" class="dijitDialogPaneContent" >
+	   <div data-dojo-type="dijit/layout/ContentPane">
+	      <table>
+	      <tr>
+	      <td>
+		 <label>VendorName :</label>
+		 <div data-dojo-type="dijit/form/TextBox" title="Vendor Name"  data-dojo-attach-point="vendorN"></div>
+		 </td>
+		 <td>
+		  <label>Vendor GSTIN :</label>
+		 <div data-dojo-type="dijit/form/TextBox" title="Vendor GSTIN"  data-dojo-attach-point="vendorgstin"></div>
+		 </td>
+		 <td>
+		 <label>BankAccountNumber</label>
+		 <div data-dojo-type="dijit/form/FilteringSelect" title="Bank Account Number" data-dojo-attach-point="vendorbankAcs"></div>
+		 </td>
+		 </tr>
+		 <tr>
+		 <td>
+		 <label>Bank Key :</label>
+		 <div data-dojo-type="dijit/form/FilteringSelect" title="Bank Key"  data-dojo-attach-point="bankkeys"></div>
+		 </td>
+		 <td>
+		 <label>House Bank :</label>
+		 <div data-dojo-type="dijit/form/FilteringSelect" title="House Bank"  data-dojo-attach-point="houseBanks"></div>
+		 </td>
+		 <td>
+		 <label>House Bank Id :</label>
+		 <div data-dojo-type="dijit/form/FilteringSelect" title="HouseBankId"  data-dojo-attach-point="houseBankIds"></div>
+		 </td>
+		 <tr>
+		 <td>
+		 <label>Payment Method :</label>
+		 <div data-dojo-type="dijit/form/FilteringSelect" title="Payment Method"  data-dojo-attach-point="paymentMethods"></div>
+         </td>
+         <td>
+		 <label>Venodr PAN:</label>
+		 <div data-dojo-type="dijit/form/TextBox" title="Vendor PAN"  data-dojo-attach-point="vendorPan"></div>
+         </td>
+         </tr>
+         </table>
+		 <button data-dojo-type="dijit/form/Button" data-dojo-attach-point="ok_button">Ok</button>
+	</div>
+	</div>
+</div>
