@@ -1,0 +1,335 @@
+_count = 0;
+if (payload.eventName === "icm.SendWorkItem") {
+    _coord = payload.coordination;
+    var self = this;
+    _editable = payload.workItemEditable;
+    var coordination = payload.coordination;
+    var tsaIDchoices = [];
+    var eaIDchoices = [];
+	var SubLobChoices =[];
+    var allDocTypes;
+    var coordination = payload.coordination;
+    var primaryPropertyController;
+    var eaidPropertyController;
+	var primarySubLobController;
+    require(
+        ["icm/base/Constants", "icm/model/properties/controller/ControllerManager"],
+        function(Constants, ControllerManager) {
+            var solution = self.solution;
+            var prefix = solution.getPrefix();
+            var primaryProperty = prefix + "_TSAID";
+            var primaryEAIDProperty = prefix + "_EAID";
+			var primarysubLOBProperty = prefix + "_SubLOB";
+            var indexEAID;
+            try {
+                var loadTopicHandler = function(context, complete, abort) {
+                    collectionController = ControllerManager.bind(_editable);
+                    primaryPropertyController = collectionController.getPropertyController("F_CaseFolder", primaryProperty);
+                    primaryEAIDPropertyController = collectionController.getPropertyController("F_CaseFolder", primaryEAIDProperty);
+                    primarySubLobController =collectionController.getPropertyController("F_CaseFolder", primarysubLOBProperty);
+					primaryPropertyController.set("choices", tsaIDchoices);
+                    primaryPropertyController.set("maxLength", "500");
+                    primaryEAIDPropertyController.set("choices", eaIDchoices);
+                    primaryEAIDPropertyController.set("maxLength", "500");
+					primarySubLobController.set("choices", SubLobChoices);
+                    primarySubLobController.set("maxLength", "50");
+
+                    complete();
+                };
+                var closeTopicHandler = function(context, complete, abort) {
+                    ControllerManager.unbind(_editable);
+                    complete();
+                };
+                var beforeloadTopicHandler = function(context, complete, abort) {
+                    var params = {};
+                    params.ObjectStore = solution.getTargetOS().id;
+                    var criteriaValue = prefix + "_BHFConfiguration";
+                    var criterion1 = new ecm.model.SearchCriterion({
+                        "id": "CmAcmCaseIdentifier",
+                        "selectedOperator": "STARTSWITH",
+                        "dataType": "xs:string",
+                        "defaultValue": criteriaValue,
+                        "value": criteriaValue,
+                        "values": [criteriaValue]
+                    });
+                    params.criterions = [criterion1];
+                    params.CaseType = criteriaValue;
+                    params.solution = solution;
+                    var searchPayload = new icm.util.SearchPayload();
+                    searchPayload.setModel(params);
+                    // console.debug(searchPayload);
+                    var alldata;
+                    var finalchoice = [];
+                    searchPayload.getSearchPayload(function(payload) {
+                        //   console.debug(payload);
+                        //  console.debug(payload.searchTemplate);
+                        var searchTemplate = payload.searchTemplate;
+                        searchTemplate.search(function(results) {
+                            if (results.items.length > 0) {
+                                var myItem = results.items[0];
+                                //console.log('myItem',myItem);
+                                var caseId = prefix + "_BHFConfiguration_" + myItem.name;
+                                solution.retrieveCase(caseId, function(currentCase) {
+                                    var searchpropsCtrl = icm.model.properties.controller.ControllerManager.bind(currentCase.createEditable());
+                                    var docProp = searchpropsCtrl.getPropertyController("TSAEX_ConfigureDocumentType");
+                                    var tsaProp = searchpropsCtrl.getPropertyController("TSAEX_ConfigureTSAID");
+                                    var eaidProp = searchpropsCtrl.getPropertyController("TSAEX_ConfigureEAIID");
+                                    var appProp = searchpropsCtrl.getPropertyController("TSAEX_ConfigureApplicationName");
+                                    var metSMProp = searchpropsCtrl.getPropertyController("TSAEX_ConfigureMetLifeSM");
+                                    var metSMProp2 = searchpropsCtrl.getPropertyController("TSAEX_ConfigureMetLifeSMEmail");
+                                    var metSMProp3 = searchpropsCtrl.getPropertyController("TSAEX_ConfigureMetLifeSMName");
+									var subLobProp = searchpropsCtrl.getPropertyController("TSAEX_ConfigureSubLOB");
+                                    var allDocTypes = docProp.get("value");
+                                    _allTSAID = tsaProp.get("value");
+                                    _allEAID = eaidProp.get("value");
+                                    _allApp = appProp.get("value");
+                                    _allImpSM = metSMProp.get("value");
+                                    _allImpSMEmail = metSMProp2.get("value");
+                                    _allImpSMName = metSMProp3.get("value");
+									_allSubLob = subLobProp.get("value");
+                                    for (var int = 0; int < _allTSAID.length; int++) {
+                                        tsaIDchoices.push({
+                                            label: _allTSAID[int],
+                                            value: _allTSAID[int]
+                                        });
+                                    }
+                                    for (var int = 0; int < _allEAID.length; int++) {
+                                        eaIDchoices.push({
+                                            label: _allEAID[int],
+                                            value: _allEAID[int]
+                                        });
+                                    }
+									for (var int = 0; int < _allSubLob.length; int++) {
+                                        SubLobChoices.push({
+                                            label: _allSubLob[int],
+                                            value:_allSubLob[int]
+                                        });
+                                    }
+                                    //alert('I am returning choices'+ tsaIDchoices);
+                                    collectionController = ControllerManager.bind(_editable);
+                                    primaryPropertyController = collectionController.getPropertyController("F_CaseFolder", primaryProperty);
+                                    primaryEAIDPropertyController = collectionController.getPropertyController("F_CaseFolder", primaryEAIDProperty);
+									primarySubLobController = collectionController.getPropertyController("F_CaseFolder", primarysubLOBProperty);
+                                    primaryPropertyController.set("choices", tsaIDchoices);
+                                    primaryPropertyController.set("maxLength", "500");
+                                    primaryEAIDPropertyController.set("choices", eaIDchoices);
+                                    primaryEAIDPropertyController.set("maxLength", "500");
+									primarySubLobController.set("choices", SubLobChoices);
+                                    primarySubLobController.set("maxLength", "50");
+                                });
+                            } else {
+                                alert("No configuration deatils found");
+                            }
+                        });
+                    });
+                    complete();
+                }
+            } catch (error) {
+                //alert("Error occurred: "+ error);
+                console.log("Error occurred: " + error);
+            }
+            coordination.participate(Constants.CoordTopic.LOADWIDGET, loadTopicHandler);
+            // coordination.participate(Constants.CoordTopic.AFTERSAVE,closeTopicHandler);
+            coordination.participate(Constants.CoordTopic.AFTERCANCEL, closeTopicHandler);
+            coordination.participate(Constants.CoordTopic.BEFORELOADWIDGET, beforeloadTopicHandler);
+        });
+}
+if (payload.eventName === "icm.PropertyUpdated") {
+    if (payload.property.controller.id == "TSAEX_BHFProjectId") {
+        var propValue = payload.value;
+        //console.log("propVal=  " +propValue);
+        var propName = payload.property.controller.id;
+        //console.log("propName= ' ' "+propName);  
+        coord = payload.coordination;
+        var solution = this.solution;
+        /*Define base SQL select against a particular case type*/
+        var sqlBase = "SELECT [LastModifier], [DateLastModified], [CmAcmCaseTypeFolder], " + "[CmAcmCaseState], [CmAcmCaseIdentifier], [DateCreated], [Creator], [Id], [ContainerType], [LockToken], [LockTimeout], " + "[ClassDescription], [DateLastModified], [FolderName] " + "FROM [TSAEX_TSAExitStrategy] ";
+        /*Define optional where clause, to specify Working / Complete / etc.*/
+        var sqlWhere = " WHERE [TSAEX_BHFProjectId]=" + "'" + propValue + "'";
+        var ceQuery = sqlBase + sqlWhere;
+        //console.log(ceQuery);
+        var searchQuery = new ecm.model.SearchQuery({
+            repository: solution.getTargetOS(),
+            pageSize: 0,
+            query: ceQuery,
+            retrieveAllVersions: false,
+            retrieveLatestVersion: true
+        });
+        //console.log("seaerch lenth");
+        //console.log("query====="+searchQuery);
+        var caseCount = 0;
+        searchQuery.search(function(resultSet) {
+            //console.log("result set",resultSet);
+            caseCount = resultSet.totalCount;
+            //console.log("insideCase Count = " + caseCount);
+            if (caseCount > 0) {
+                //alert("please enter unique id");
+                _isDuplicate = true;
+                var messageDialog = new ecm.widget.dialog.MessageDialog({
+                    text: "<b>Entered ProjectID is already exists,Please enter a new ProjectID.</b> "
+                });
+                messageDialog.show();
+            } else {
+                _isDuplicate = false;
+                //console.log("hi",_isDuplicate);
+            }
+        });
+    } else {
+        console.log("im in else===");
+    }
+}
+if (payload.eventName == "icm.FieldUpdated") {
+    console.log("inside field updated event");
+    var setPropertyEditable = _editable;
+    //console.log("In updaefeild::"+ setPropertyEditable);
+    var propValue = payload.change.value;
+    var propName = payload.change.id;
+    var indexEAID;
+    var appValue = [];
+    var indexTSAID;
+    var impactedSM = [];
+    var impactedSMName = [];
+    var impactedSMEmail = [];
+    //var selectedTSAID's=[]
+    if (propName == 'TSAEX_TSAID') {
+
+        require(["icm/base/Constants", "icm/model/properties/controller/ControllerManager"], function(Constants, ControllerManager) {
+            for (var j = 0; j < propValue.length; j++) {
+             /*   if (j > 0 && propValue[0] == 'Not Applicable' && propValue[j] != 'Not Applicable') {
+                    //debugger;
+
+                   // alert("You can not select TSAIDs:::"+ _rowSelected );
+                    var messageDialog = new ecm.widget.dialog.MessageDialog({
+                        text: "You can not select TSAIDs in this row:::"+j
+                    });
+                    messageDialog.show();
+                 //   _propTable.removeRow(j);
+					_propTable.removeRow(_rowSelected);
+
+                }*/
+                for (var i = 0; i < _allTSAID.length; i++) {
+                    if (_allTSAID[i] == propValue[j]) {
+                        indexTSAID = i;
+                        if (propValue[j] != 'Not Applicable') {
+                            impactedSM.push(_allImpSM[i]);
+                            impactedSMName.push(_allImpSMName[i]);
+                            impactedSMEmail.push(_allImpSMEmail[i]);
+
+                        }else{
+						impactedSM=[];
+						impactedSMName=[];
+						impactedSMEmail=[];
+						}
+                        break;
+                    }
+                }
+            }
+            var collectionController = ControllerManager.bind(setPropertyEditable);
+            var fieldController = collectionController.getPropertyController("TSAEX_MetLifeSMUserIDList");
+            fieldController.set("value", impactedSM);
+            var fieldController2 = collectionController.getPropertyController("TSAEX_MetLifeSMNameList");
+            fieldController2.set("value", impactedSMName);
+            var fieldController3 = collectionController.getPropertyController("TSAEX_MetLifeSMEmailList");
+            fieldController3.set("value", impactedSMEmail);
+        });
+    }
+}
+if (payload.eventName === "icm.CellChanged") {
+    //debugger;
+    _rowSelected = payload.row;
+    var property = payload.property;
+    _propTable = payload.propertyTable;
+    var propValue = payload.value;
+    var setPropertyEditable = _editable;
+    require(["icm/base/Constants", "icm/model/properties/controller/ControllerManager"], function(Constants, ControllerManager) {
+        var collectionController = ControllerManager.bind(_editable);
+		//debugger;
+	if(payload.property.controller.id == "TSAEX_TSAID"){
+		var tabproperties = _propTable.getProperties();
+		var selectedTSAIDs = tabproperties[0].get('value');
+		console.log(selectedTSAIDs[0]);
+		if(selectedTSAIDs[0]!= null && selectedTSAIDs[0]=='Not Applicable'){
+			if(propValue!='Not Applicable'){
+			//debugger;
+
+                   // alert("You can not select TSAIDs:::"+ _rowSelected );
+                    var messageDialog = new ecm.widget.dialog.MessageDialog({
+                        text: "Not Applicable has already been selected thus you may not add additional TSAIDs to this Work Request.  Remove the Not Applicable item if you must add additional TSAIDs."
+                    });
+                    messageDialog.show();	
+				_propTable.removeRow(_rowSelected);
+			}
+			
+			
+		}
+		
+        if (propValue == 'Not Applicable' && _rowSelected == '0') {
+            //debugger;
+           
+            var exitImpact = [];
+            var TimingImpact = [];
+            exitImpact.push('Other');
+            var ExitImpact = collectionController.getPropertyController("TSAEX_ExitImpact");
+            ExitImpact.set("value", exitImpact);
+            //debugger;
+            var date1 = collectionController.getPropertyController("TSAEX_WorkRequestTargetDeliveryDate");
+            var dat = collectionController.getPropertyController("TSAEX_TimingOfImpact");
+            var wdate = date1.get("value");
+            TimingImpact.push(wdate);
+           dat.set("value", TimingImpact);   
+        } else if ( propValue == 'Not Applicable' && _rowSelected > '0') {
+           // alert("You can not select Not Applicable in this row");
+            var messageDialog = new ecm.widget.dialog.MessageDialog({
+                text: "Not Applicable should only be used when there are no TSAIDs associated with a Work Request."
+            });
+            messageDialog.show();
+            _propTable.removeRow(_rowSelected);
+        }
+
+	} else if (payload.property.controller.id == "TSAEX_EAID") {
+            var fieldController = collectionController.getPropertyController("TSAEX_ApplicationName");
+            var appValue = fieldController.get("value");
+            for (var i = 0; i < _allEAID.length; i++) {
+                if (_allEAID[i] == propValue) {
+                    indexEAID = i;
+                    if (appValue.length >= 0 && _rowSelected == appValue.length) {
+                        appValue.push(_allApp[i]);
+                    } else {
+                        appValue[_rowSelected] = _allApp[i];
+                    }
+
+                    break;
+                }
+            }
+         //   console.log("appValue");
+            fieldController.set("value", appValue);
+        }
+
+    });
+}
+
+if (payload.eventName === "icm.RowAdded") {
+    //debugger;
+    require(["icm/base/Constants", "icm/model/properties/controller/ControllerManager", "dojo/_base/array"], function(Constants, ControllerManager, array) {
+        //debugger;
+        var propertyTable = payload.propertyTable;
+        var properties = propertyTable.getProperties();
+        var collectionController = ControllerManager.bind(_editable);
+        if (properties[0].controller.id == 'TSAEX_TSAID') {
+            var fieldController = collectionController.getPropertyController("TSAEX_Comments");
+            var comentsValue = fieldController.get("value");
+            comentsValue[payload.row] = ' ';
+            fieldController.set("value", comentsValue);
+
+        } else {
+            var fieldController = collectionController.getPropertyController("TSAEX_ApplicationComments");
+            var comentsValue1 = fieldController.get("value");
+            comentsValue1[payload.row] = ' ';
+            fieldController.set("value", comentsValue1);
+        }
+
+
+
+    });
+
+}
