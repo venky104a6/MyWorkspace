@@ -1,0 +1,88 @@
+var coord = payload.coordination;
+console.log("payload====", payload);
+var workitemEdit = payload.workItemEditable;
+console.log(workitemEdit);
+var workitem = payload.workItemEditable.icmWorkItem;
+var myCase = workitemEdit.getCase();
+//alert(myCase);
+var solution = this.solution;
+var prefix = solution.getPrefix();
+var self = this;
+self.commentAdded = false;
+require(["icm/base/Constants",
+    "icm/model/properties/controller/ControllerManager", "dojo/_base/lang", "ecm/widget/dialog/ConfirmationDialog", "dojo/dom-style", "dojo/query", "dojo/aspect"
+], function(Constants, ControllerManager, lang, Dialog, domStyle, query, aspect) {
+    require(["dojo/_base/declare", "dojo/_base/lang", "icm/dialog/addcommentdialog/AddCommentDialog"],
+        function(declare, lang, AddCommentDialog) {
+            if (coord) {
+                coord.participate(Constants.CoordTopic.VALIDATE, function(context, complete, abort) {
+                    if ((context[Constants.CoordContext.WKITEMRESPONSE] === "Reject") || (context[Constants.CoordContext.WKITEMRESPONSE] === "Place on Hold")) {
+                        console.log("context[Constants.CoordContext.WKITEMRESPONSE] ", context[Constants.CoordContext.WKITEMRESPONSE]);
+                        var dia = new Dialog({
+                            title: "Confirmation Required",
+                            cancelButtonLabel: "No",
+                            text: "Are you sure you want to " + context[Constants.CoordContext.WKITEMRESPONSE] + "?",
+                            onExecute: function() {
+                                console.log("im  i n loopppp");
+                                var addCommentDialog = new AddCommentDialog({
+                                    artifactType: "Case",
+                                    artifactLabel: workitem.stepName,
+                                    commentContext: Constants.CommentContext.WORK_ITEM_COMPLETE,
+                                    caseModel: myCase,
+                                    workItem: workitem,
+                                    onClickClose: function() {
+                                        if (self.commentAdded) {
+                                            addCommentDialog.hide();
+                                            complete();
+                                        } else {
+                                            abort({
+                                                'silent': true
+                                            });
+                                        }
+                                    }
+                                });
+                                dojo.connect(addCommentDialog.commentContentPane, "afterAddComment", lang.hitch(this, function() {
+                                    console.log("inside dojo connect");
+                                    self.commentAdded = true;
+                                    addCommentDialog.onClickClose();
+                                    //complete();
+                                }));
+                                addCommentDialog.show();
+                                domStyle.set(addCommentDialog.cancelButton.domNode, 'display', 'none');
+                                //complete();
+                            },
+                            onCancel: function() {
+                                console.log("onCanel");
+                                abort({
+                                    'silent': true
+                                });
+                            }
+                        });
+                        dia.show();
+                        console.log("afetr show");
+                    } else if (context[Constants.CoordContext.WKITEMRESPONSE] === "Submit") {
+                        var dia = new Dialog({
+                            title: "Confirmation Required",
+                            cancelButtonLabel: "No",
+                            text: "Are you sure you want to " + context[Constants.CoordContext.WKITEMRESPONSE] + "?",
+                            onExecute: function() {
+                                complete();
+                            },
+                            onCancel: function() {
+                                console.log("onCanel");
+                                abort({
+                                    'silent': true
+                                });
+                            }
+                        }); //Approve Case If End
+                        dia.show();
+                        //complete();
+                    }// Approve Case  Else End
+else{
+	console.log("participating in save validation");
+	complete();
+}	
+                }); //participate End
+            } //coord End
+        }); //require End
+});
