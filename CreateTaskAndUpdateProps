@@ -1,0 +1,53 @@
+debugger;
+
+var repID = ecm.model.desktop.defaultRepositoryId;
+var repository1 = ecm.model.desktop.getRepository(repID);
+var myCase = payload.workItemEditable.getCase();
+var caseId = myCase.id;
+var targetOS = repository1.objectStore.symbolicName;
+var getLaunchStepURL = window.location.protocol + "\/\/" + window.location.host + "/CaseManager/CASEREST/v1/case/" + caseId + "/tasktype/TSAEX_UpdateCaseProperties?TargetObjectStore=" + targetOS;
+var launchStep;
+var xhrArgs = {
+	url: getLaunchStepURL,
+	handleAs: "json",
+	sync: true,
+	headers: {
+		"Content-Type": "application/json"
+	},
+	load: function(data) {
+		launchStep = data;
+	},
+	error: function(error) {
+		//alert("Error in Getting Launch Step:: " + error);
+		console.log("Error in Getting Launch Step:: " + error);
+		
+	}
+};
+var deferred = dojo.xhrGet(xhrArgs);
+
+
+var newTask = {
+	"TaskTypeName": "TSAEX_UpdateCaseProperties",
+	"TaskName": "TSAEX_UpdateCaseProperties",
+	"StepElement": launchStep
+};
+
+var launchURL = window.location.protocol + "\/\/" + window.location.host + "/CaseManager/CASEREST/v1/case/" + caseId + "/tasks?TargetObjectStore=" + targetOS;
+var taskId;
+var launchXhrArgs = {
+	url: launchURL,
+	handleAs: "json",
+	sync: true,
+	postData: dojo.toJson(newTask),
+	headers: {
+		"Content-Type": "application/json"
+	},
+	load: function(data) {
+		taskId = data;
+	},
+	error: function(error) {
+		//alert("Error in Launching Task:: " + error);
+		console.log("Error in Launching Task:: " + error);
+	}
+};
+var deferredPost = dojo.xhrPost(launchXhrArgs);
